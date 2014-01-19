@@ -1,0 +1,356 @@
+1. Using Controllers:
+
+	- location: 
+		'application/controller'
+	
+	- class name: 
+		'Account_Controller'
+	
+	- extends: 
+		'Base_controller'
+	
+	- filename: 
+		'application/controller/account.php'
+	
+	- action name: 
+		'action_index()'
+		'action_login()' 
+		'action_logout()'
+		'action_welcome()'
+
+	- routing: 
+		Route::controller('account')
+		Route::controller('in.a.sub.folder.account')
+		Route::controller('mybundle::account')
+
+	- passing parameters: 
+		public function action_welcome($name, $place) {}
+
+	- returning views: 
+		return View::make('account.welcome')
+		=> view location: 'application/views/account/view.blade.php'
+
+	- passing data to views:
+
+		#1 return View::make('account.welcome')->with('place', $place)->with('name',$name);
+		#2 $data = array('name' => $name, 'place' => $place);
+		   return View::make('account.welcome', $data);
+
+    - RESTfull controller:
+
+    	enabling RESTfull: 
+    		public $restful = true;
+
+    	RESTfull controller action names:
+    		get_index()
+    		post_create();
+
+2. Routes With Closures
+
+	- route methods:
+
+		Route::get();
+		Route::post();
+		Route::put();
+		Route::delete();
+		Route::any();
+
+	- route with closures:
+
+		Route::get('user/(:any)/task/(:num)', function($username, $task_number)
+		{
+			// $username will be replaced by the value of (:any)
+			// $task_number will be replaced by the integer in place of (:num)
+			$data = array(
+				'username' => $username,
+				'task' => $task_number
+			);
+
+			return View::make('tasks.for_user', $data);
+		});
+
+	- named routes:
+
+		Route::get('account/profile', array('as' => 'profile', 'do' => function()
+		{
+			return View::make('account/profile');
+		}));
+
+	- redirect to named routes:
+
+		Route::get('profile', function()
+		{
+			return Redirect::to_route('profile');
+		});
+
+3. Links and URLs:
+
+	- retrieving URLs:
+
+		URL::base() -> app base URL
+		URL::current() -> return current URL
+		URL::full() -> retrieve the current URL along with the query string
+		URL::to('my/route') -> http://myproject/my/route
+		URL::to_secure('my/route') -> https://myproject/my/route
+
+		Route::get('login', array('as' => 'login', 'do' => function() { some code }));
+		URL::to_route('login') -> http://myproject/login
+		
+		Route::get('my/(:any)/login/(:any)/page')
+		URL::to_route('login', array(5, 7)) -> http://myproject/my/5/login/7/page
+		
+		URL::to_action('dashboard@home') -> http://myproject/dashboard/home
+		URL::to_asset('css/style.css') -> http://myproject/css/style.css
+
+	- generating links:
+
+		<?php echo HTML::link('my/page', 'My Page'); ?> -> <a href="http://myproject/my/page">My Page</a>
+		<?php echo HTML::link('my/page', 'My Page', array('title' => 'My page!')); ?> -> <a href="http://myproject/my/page" title="My page!">My Page</a>
+		HTML::link_to_secure('my/page', 'My Page') -> <a href="https://myproject/my/page">My Page</a>
+		HTML::link_to_route('login', 'Login!') -> <a href="http://myproject/login/page">Login!</a>
+		HTML::link_to_action('account@login', 'Login!') -> <a href="http://myproject/account/login">Login!</a>
+		HTML::mailto('me@daylerees.com', 'Mail me!') -> <a href="mailto:me@daylerees.com">Mail me!</a>
+
+4. Forms: -> http://laravel.com/docs/html
+
+	Form::open('my/route','post',array('id' => 'form_id')) -> form open tag
+	Form::open_secure('my/route','post',array('id' => 'form_id')) -> form open tag, post to HTTPS
+	Form::open_for_files('my/route','post',array('id' => 'form_id')) -> form open tag, for files, adds 'multipart/data'
+	Form::open_secure_for_files('my/route','post',array('id' => 'form_id')) -> form open tag, post to HTTPS and adds 'multipart/data'
+
+	Form::label('username', 'Username', array('id' => 'label_id')) -> generate form label
+	Form::text('username', '', array('id' => 'username')) -> generate text input
+	Form::password('password', array('id' => 'password')) -> generate password input
+	Form::checkbox('admin', 'yes', true, array('id' => 'admin-checker')) -> generate input checkbox
+	Form::radio('admin', 'yes', true, array('id' => 'admin-checker')) -> generate input radio
+	echo Form::select('roles', array(0 => 'User', 1 => 'Member', 2 => 'Editor', 3 => 'Administrator'), 2) -> generate drop down select
+	Form::submit('Login') -> generate submit button
+	Form::search('search', '', array('search_id')) -> generate input type search
+	Form::email('email', 'email@mail.com', array('email_id')) -> generate input type email
+	Form::file('file', array('file_id')) -> generate input type file
+	Form::close() -> generate form close tag
+	Form::token() -> generate form cfrf token
+
+	form macro:
+
+		Form::macro('shoe_size', function() {
+			return '<input type="show_size" />';
+		});
+
+		echo Form::shoe_size()
+
+5. Handling Input: -> http://laravel.com/docs/requests
+
+	Input::get('panda') -> $_POST['panda']
+	Input::get('panda', 'Muffin') -> if $_POST['panda'] == null, then $_POST['panda'] = 'Muffin'
+	Input::get() -> get all request data, except $_FILES
+	Input::all() -> get all request data
+	Input::has('panda') -> check if request has a $_POST['panda']
+	Input::file('spoon') -> $_FILES['spoon']
+	Input::file('spoon.size') -> $_FILES['spoon']['size']
+	Input::file() -> get all $_FILES
+	Redirect::to('party')->with_input() -> redirect with input flash data
+
+6. Validation: -> http://laravel.com/docs/validation
+	
+	- process:
+
+		$rules = array(
+			'name' => 'required|min:3|max:32|alpha',
+			'age' => 'required|integer|min:16'
+		);
+
+		$input = Input::all();
+		$v = Validator::make($input, $rules);
+
+		if($v->fails())
+		{
+			// code for validation failure :(
+			$age_errors = $v->errors->get('age');
+			$name_errors = $v->errors->get('name');
+		}
+		else
+		{
+			// code for validation success!
+		}
+
+		or
+
+		if( $v->passes() )
+		{
+			// code for validation success!
+		}
+		else
+		{
+			// code for validation failure :(
+			return Redirect::to_route('register')->with_errors($v)->with_input();
+		}
+
+	- error messages:
+
+		- in controller:
+
+			$age_errors = $v->errors->get('age');
+			$name_errors = $v->errors->get('name');
+
+		- in views:
+
+			return Redirect::to_route('register')->with_errors($v)->with_input();
+			
+			in the view, a variable named '$errors' will available:
+			$errors->first('age', '<span class="error">:message</span>') 
+			$errors->first('name', '<span class="error">:message</span>') 
+
+
+	- validation rules: -> http://three.laravel.com/docs/validation#validation-rules
+
+	- setting custom error messages: 'application/language/en/validation.php' -> for messages in english
+
+	- custom validator: 
+
+		- create a file named 'validator.php' in 'application/libraries'
+		- create a class inside 'validator.php' named 'Validator' that extends laravel validator class: 'class Validator extends Laravel\Validator'
+
+7. Migrations: -> http://three.laravel.com/docs/database/migrations
+
+	- database setup:
+		'application/config/database.php'
+
+	- install application's migration table:
+		'php artisan migrate:install'
+
+	- create a migration file:
+		php artisan migrate:make create_users
+		=> will create a file in 'application/migrations' named '2014_01_04_154319_create_users.php' (the '2014_01_04_154319_' is a timestamp)
+		=> inside this file, create table schema using Schema Builder -> http://laravel.com/docs/schema
+
+	- run the migration:
+		php artisan migrate
+
+	- rollback the migration:
+		php artisan migrate:rollback
+
+8. Fluent Query Builder: -> http://three.laravel.com/docs/database/fluent
+
+	syntax: DB::table('table_name')->chain()->chain()->trigger();
+
+	- retrieving results:
+		DB::table('users')->get() -> get all data
+		DB::table('users')->first() -> get first data
+		DB::table('users')->find(3) -> get data with id of '3'
+		DB::table('users')->only('email') -> get single result with only from 'email' column
+		DB::table('users')->get(array('username','email')) -> get all data with only from 'username' and 'email' column
+
+	- where clauses:
+		DB::table('users')->where('username', '=', 'andre')->get()
+		DB::table('users')->where('username', '=', 'andre')->where('email', '=', 'andre@mail.com')->get() -> AND where
+		DB::table('users')->where('username', '=', 'dayle')->or_where('face', 'LIKE', '%malemodel%')->get() -> OR where
+		
+		DB::table('users')->where('id', '=', 1)->or_where(function($query)
+		{
+			$query->where('age', '>', 25);
+			$query->where('votes' '>', 100);
+		})->get()
+		=> SELECT * FROM users WHERE id = ? OR (age > ? AND votes > ?)'
+
+	- table joins:
+		DB::table('tasks')->join('project', 'tasks.id', '=', 'project.task_id')->get(array('task.name', 'project.name'))
+		=> 'SELECT task.name, project.name FROM tasks JOIN project ON tasks.id = project.task_id'
+
+		DB::table('tasks')->join('project', function($join) 
+		{
+			$join->on('tasks.id', '=', 'project.task_id');
+			$join->or_on('tasks.author_id', '=', 'project.author_id');
+		})->get(array('task.name', 'project.name'))
+		=> 'SELECT task.name, project.name FROM tasks JOIN project ON tasks.id = project.task_id OR tasks.author_id = project.author_id'
+
+		DB::table('tasks')->join('project', function($join) 
+		{
+			$join->on('tasks.id', '=', 'project.task_id');
+			$join->and_on('tasks.author_id', '=', 'project.author_id');
+		})->get(array('task.name', 'project.name'))
+		=> 'SELECT task.name, project.name FROM tasks JOIN project ON tasks.id = project.task_id AND tasks.author_id = project.author_id'
+
+	- ordering:
+		DB::table('shoes')->order_by('size', 'asc')->get()
+
+	- limiting:
+		DB::table('shoes')->take(10)->get() -> 'SELECT * FROM shoes LIMIT 10'
+
+	- skipping result:
+		DB::table('shoes')->skip(5)->get() -> skip first 5 result
+
+	- aggregates:
+		DB::table('shoes')->avg('size');
+		DB::table('shoes')->min('size');
+		DB::table('shoes')->max('size');
+		DB::table('shoes')->sum('size');
+		DB::table('shoes')->count();
+
+	- increment/decrement:
+		DB::table('shoes')->increment('size');
+		DB::table('shoes')->decrement('size');
+
+	- insert:
+		DB::table('shoes')->insert(array(
+			'color' => 'hot pink',
+			'type' => 'heels',
+			'size' => '12'
+		))
+
+		$id = DB::table('shoes')->insert_get_id(array(
+			'color' => 'hot pink',
+			'type' => 'heels',
+			'size' => '12'
+		))
+		=> return last insert id
+
+	- update:
+		DB::table('shoes')->update(array(
+			'type' => 'skate shoes'
+		));
+		=> "UPDATE shoes SET type = 'skate_shoes'"
+
+		DB::table('shoes')->where('id', '=', $id)->update(array(
+			'type' => 'skate shoes'
+		));
+		=> "UPDATE shoes SET type = 'skate shoes' WHERE id = ?"
+
+	- delete:
+		DB::table('not_shoes')->where('texture', '=', 'fuzzy')->delete()
+		=> DELETE FROM not_shoes WHERE tetxture = 'fuzzy'
+
+		DB::table('shoes')->delete($id)
+		=> DELETE FROM shoes WHERE  = ?
+
+9. Eloquent ORM: -> http://three.laravel.com/docs/database/eloquent
+
+	- location: 
+		'application/models'
+	
+	- class name: 
+		singular form of the table. if the table name is 'users', than the class name is 'User'
+	
+	- extends: 
+		'eloquents'
+	
+	- filename: 
+		'application/models/user.php'
+
+	- if you want to use different table:
+		public static $table = 'app_users';
+
+	- if you want to specify a primary key other than 'id'
+	  	public static $key = 'my_primary_key';
+
+	- methods:
+
+		User::find(2) -> find user with an id of '2'
+		User::all() -> get all users
+
+10. Events: -> http://three.laravel.com/docs/events
+
+11. Blade Templates: -> http://three.laravel.com/docs/views/templating
+
+
+

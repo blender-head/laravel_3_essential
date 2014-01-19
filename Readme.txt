@@ -1,0 +1,1 @@
+A Laravel 3 Beginner's guide from Dayle Reese's book Code Happy
