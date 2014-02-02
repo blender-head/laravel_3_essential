@@ -169,3 +169,12 @@ Route::get('fluent', array(
 ));
 
 Route::controller('user');
+
+Route::get('account/test_template', 'account@page');
+
+Route::get('test/inject', array(
+	'do' => function() {
+		Section::inject('title', 'My Site');
+		return View::make('account.page');
+	}
+));

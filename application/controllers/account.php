@@ -27,4 +27,9 @@
 			//return View::make('account.welcome')->with('place', $place)->with('name',$name);
 			return View::make('account.welcome', $data);
 		}
+
+		public function action_page()
+		{
+			return View::make('account.page');
+		}
 	}

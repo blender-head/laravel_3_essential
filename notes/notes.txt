@@ -6,8 +6,8 @@
 	- class name: 
 		'Account_Controller'
 	
-	- extends: 
-		'Base_controller'
+	- extends: -> 
+		'Base_controller' -> 'application/controllers/base.php'
 	
 	- filename: 
 		'application/controller/account.php'
@@ -18,7 +18,7 @@
 		'action_logout()'
 		'action_welcome()'
 
-	- routing: 
+	- routing: -> 'application/routes.php'
 		Route::controller('account')
 		Route::controller('in.a.sub.folder.account')
 		Route::controller('mybundle::account')
@@ -28,7 +28,7 @@
 
 	- returning views: 
 		return View::make('account.welcome')
-		=> view location: 'application/views/account/view.blade.php'
+		=> view location: 'application/views/account/welcome.blade.php'
 
 	- passing data to views:
 
@@ -45,7 +45,7 @@
     		get_index()
     		post_create();
 
-2. Routes With Closures
+2. Routes With Closures: -> http://three.laravel.com/docs/routing
 
 	- route methods:
 
@@ -83,7 +83,7 @@
 			return Redirect::to_route('profile');
 		});
 
-3. Links and URLs:
+3. Links and URLs: -> http://three.laravel.com/docs/urls
 
 	- retrieving URLs:
 
@@ -111,7 +111,7 @@
 		HTML::link_to_action('account@login', 'Login!') -> <a href="http://myproject/account/login">Login!</a>
 		HTML::mailto('me@daylerees.com', 'Mail me!') -> <a href="mailto:me@daylerees.com">Mail me!</a>
 
-4. Forms: -> http://laravel.com/docs/html
+4. Forms: -> http://three.laravel.com/docs/views/forms
 
 	Form::open('my/route','post',array('id' => 'form_id')) -> form open tag
 	Form::open_secure('my/route','post',array('id' => 'form_id')) -> form open tag, post to HTTPS
@@ -139,7 +139,7 @@
 
 		echo Form::shoe_size()
 
-5. Handling Input: -> http://laravel.com/docs/requests
+5. Handling Input: -> http://three.laravel.com/docs/input
 
 	Input::get('panda') -> $_POST['panda']
 	Input::get('panda', 'Muffin') -> if $_POST['panda'] == null, then $_POST['panda'] = 'Muffin'
@@ -151,7 +151,7 @@
 	Input::file() -> get all $_FILES
 	Redirect::to('party')->with_input() -> redirect with input flash data
 
-6. Validation: -> http://laravel.com/docs/validation
+6. Validation: -> http://three.laravel.com/docs/validation
 	
 	- process:
 
@@ -238,8 +238,8 @@
 		DB::table('users')->get() -> get all data
 		DB::table('users')->first() -> get first data
 		DB::table('users')->find(3) -> get data with id of '3'
-		DB::table('users')->only('email') -> get single result with only from 'email' column
-		DB::table('users')->get(array('username','email')) -> get all data with only from 'username' and 'email' column
+		DB::table('users')->only('email') -> get single result only from 'email' column
+		DB::table('users')->get(array('username','email')) -> get all data only from 'username' and 'email' column
 
 	- where clauses:
 		DB::table('users')->where('username', '=', 'andre')->get()
@@ -351,6 +351,59 @@
 10. Events: -> http://three.laravel.com/docs/events
 
 11. Blade Templates: -> http://three.laravel.com/docs/views/templating
+
+	- filename: file.blade.php
+
+	- syntax:
+
+		- output:
+
+			{{ $val }}
+			{{ 5 * time() }}
+
+		- logic:
+
+			- foreach loops:
+
+				@foreach ($users as $user)
+					<div class="user">{{ $user->name }}</div>
+				@endforeach
+
+			- conditional:
+
+				@if ($user->name == 'Dave')
+					<p>Welcome Dave!</p>
+				@else
+					<p>Welcome Guest!</p>
+				@endif
+
+			- for loop:
+
+				@for ($i =0; $i < 100 - 1; $i++)
+					Number {{ $i }}<br />
+				@endfor
+
+			- foreach else loop:
+
+				@forelse ($users as $user)
+					{{ $user->name }}
+				@empty
+					<p>There are no users.</p>
+				@endforelse
+
+	- layout:
+
+		- test layout: application/views/template.blade.php
+		- test layout user: application/views/account/page.blade.php
+		- using template form action/route:
+
+			Route::get('test/inject', array(
+				'do' => function() {
+					Section::inject('title', 'My Site');
+					return View::make('account.page');
+				}
+			));
+
 
 
 
