@@ -178,3 +178,41 @@ Route::get('test/inject', array(
 		return View::make('account.page');
 	}
 ));
+
+Route::get('make_password', function() {
+	echo Hash::make('12345678');
+});
+
+Route::get('login', function() {
+	return View::make('login');
+});
+
+Route::post('login', function() {
+	// get POST data
+	$userdata = array(
+		'username' => Input::get('username'),
+		'password' => Input::get('password')
+	);
+
+	if ( Auth::attempt($userdata) )
+	{
+		// we are now logged in, go to home
+		return Redirect::to('home');
+	}
+	else
+	{
+		// auth failure! lets go back to the login
+		// pass any error notification you want
+		// i like to do it this way :)
+		return Redirect::to('login')->with('login_errors', true);
+	}
+});
+
+Route::get('logout', function() {
+	Auth::logout();
+	return Redirect::to('login');
+});
+
+Route::get('home', array('before' => 'auth', 'do' => function() {
+	return View::make('home');
+}));

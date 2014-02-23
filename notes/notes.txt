@@ -404,6 +404,58 @@
 				}
 			));
 
+11. Authentication: -> http://three.laravel.com/docs/auth/config
+
+	- setup:
+
+		- create user table: 
+			name could be anything, but by default Laravel will look for 'users' table 
+
+		- configuration:
+			'application/config/auth/php' => authentication driver, table or object name, and field names
+
+		- login form:
+			'application/views/login.blade.php'
+
+		- configure session:
+			'application/config/session.php' => configure session driver
+
+		- login handler:
+
+			Route::get('login', function() {
+				return View::make('login');
+			});
+
+			Route::post('login', function() {
+				return 'login form sent';
+			});
+
+		- route filter:
+
+			Route::filter('auth', function()
+			{
+				if (Auth::guest()) return Redirect::to('login');
+			});
+
+			Route::get('home', array('before' => 'auth', 'do' => function() {
+				return View::make('home');
+			}));
+
+		- custom Auth driver:
+			'application/libraries/myauth.php'
+
+			register the custom driver: -> 'application/start.php'
+
+				Auth::extend('myauth', function() {
+					return new Myauth();
+				});
+
+			use the custom auth driver at 'application/config/auth.php':
+
+				'driver' => 'myauth'
+
+
+
 
 
 
