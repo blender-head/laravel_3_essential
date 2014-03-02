@@ -7,4 +7,9 @@
 
 		// if you want to specify a promary key other than 'id'
 		//public static $key = 'my_primary_key';
+
+		public function posts()
+		{
+			return $this->has_many('Post');
+		}
 	}

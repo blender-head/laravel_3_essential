@@ -34,7 +34,11 @@
 
 Route::get('/', function()
 {
-	return View::make('home.index');
+	// lets get our posts and eager load the
+	// author
+	$posts = Post::with('author')->all();
+
+	return View::make('pages.home')->with('posts', $posts);
 });
 
 /*
@@ -216,3 +220,80 @@ Route::get('logout', function() {
 Route::get('home', array('before' => 'auth', 'do' => function() {
 	return View::make('home');
 }));
+
+Route::get('view/(:num)', function($post) {
+	// this is our single view
+	$post = Post::find($post);
+	return View::make('pages.full')->with('post', $post);
+});
+
+Route::get('admin', array('before' => 'auth', 'do' => function() {
+	// show the create new post form
+	$user = Auth::user();
+	return View::make('pages.new')->with('user', $user);
+}));
+
+Route::post('admin', array('before' => 'auth', 'do' => function() {
+	// let's get the new post from the POST data
+	// this is much safer than using mass assignment
+	$new_post = array(
+		'title' => Input::get('title'),
+		'body' => Input::get('body'),
+		'author_id' => Input::get('author_id')
+	);
+
+	// let's setup some rules for our new data
+	// I'm sure you can come up with better ones
+	$rules = array(
+		'title' => 'required|min:3|max:128',
+		'body' => 'required'
+	);
+
+	// make the validator
+	$v = Validator::make($new_post, $rules);
+
+	if ( $v->fails() )
+	{
+		// redirect back to the form with
+		// errors, input and our currently
+		// logged in user
+		return Redirect::to('admin')->with('user', Auth::user())
+									->with_errors($v)
+									->with_input();
+	}
+	
+	// create the new post
+	$post = new Post($new_post);
+	$post->save();
+	
+	// redirect to viewing our new post
+	return Redirect::to('view/'.$post->id);
+}));
+
+Route::get('login', function() {
+	// show the login form
+	return View::make('pages.login');
+});
+
+Route::post('login', function() {
+	// handle the login form
+	$userdata = array(
+		'username' => Input::get('username'),
+		'password' => Input::get('password')
+	);
+	
+	if ( Auth::attempt($userdata) )
+	{
+		return Redirect::to('admin');
+	}
+	else
+	{
+		return Redirect::to('login')->with('login_errors', true);
+	}
+});
+
+Route::get('logout', function() {
+	// logout from the system
+	Auth::logout();
+	return Redirect::to('/');
+});

@@ -454,6 +454,71 @@
 
 				'driver' => 'myauth'
 
+12. The Blog Tutorial:
+
+	- basic setup:
+
+		- create migration for 'users' table:
+			'php artisan migrate:make create_users'
+
+		- create migration for 'posts' table:
+			'php artisan migrate:make create_posts'
+
+		- migrate the tables:
+			'php artisan migrate'
+
+		- configure Auth driver: -> 'application/config/auth.php'
+
+			return array(
+				'driver' => 'fluent',
+				'username' => 'username',
+				'model' => 'User',
+				'table' => 'users',
+			);
+
+	- Eloquent Models:
+
+		- 'application/models/User.php'
+		- 'application/models/Post.php'
+
+	- routes:
+
+		Route::get('/', function() {
+			// this is our list of posts
+		});
+
+		Route::get('view/(:num)', function($post) {
+			// this is our single view
+		});
+
+		Route::get('admin', function() {
+			// show the create new post form
+		});
+
+		Route::post('admin', function() {
+			// handle the create new post form
+		});
+
+		Route::get('login', function() {
+			// show the login form
+		});
+
+		Route::post('login', function() {
+			// handle the login form
+		});
+
+		Route::get('logout', function() {
+			// logout from the system
+		});
+
+	- views:
+
+		- create layout:
+			'application/views/templates/main.blade.php'
+
+		- views:
+			'application/views/pages/*'
+
 
 
 
